@@ -1,8 +1,8 @@
-# bill-split-Go
+# Bill Split App in Go
 
-A bill split app that supports multi live currency,
-will write the output in the terminal and in the text/md file itself.
-Will write in the top of the file.
+A bill split app that supports multi live currency,will write
+the output in the terminal and in the text/md file itself.Will
+write in the top of the file.
 
 ## 1. Currencies
 
@@ -55,7 +55,9 @@ If no categories are written will be categorize as [o]thers.
 ## Todo
 
 - [ ] exchange currency
-- [ ] live exchange currency
+- [ ] live exchange rate
+- [ ] after retrieve live exchange rate, save it locally,
+so can exchange when the computer do not have internet
 - [ ] split for 2 ppl
 - [ ] split for >=3 ppl
 - [ ] have categories: groceries(g), fun/events(f), health(h)
@@ -63,18 +65,27 @@ If no categories are written will be categorize as [o]thers.
 ## Example file
 
 ```markdown
-### 2020 Japan Travel
+# 2020 Japan Travel
 
 - from 3rd Jul to 6th Jul
 
-# Susan
+## Susan
 
 3e burguer
 4.4j groceries
 
-# Niklas
+## Niklas
 
 4d chicken
 12.4d gas
 f6.6d cloth #when is 'f' at the beginning
+
+## Amanda
+
+-> EUR
+5.5 Susan
+6.3 taxi
+
+-> JPY
+3.32 chesse
 ```
