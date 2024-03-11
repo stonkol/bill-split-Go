@@ -2,7 +2,49 @@ package main
 
 import (
 	"fmt"
+	"math"
 )
+
+//"io"
+//"bufio"
+//"strings"
+//  "os"
+//"strconv"
+
+type Person struct {
+	name string
+	lent float32 // is recommended to don't stored in decimals
+}
+
+type Item struct {
+	name        string
+	category    string
+	price       float32
+	currency    string
+	full_amount bool
+}
+
+type CurrencyFormat struct {
+	full_name    string
+	three_digits string
+	one_digit    string
+}
+
+func finalPrint(p1_lent, p2_lent float32, p1_name, p2_name, currency string) {
+	// calculate who owes more
+	difference := (p1_lent - p2_lent) / 2
+
+	// print who owes who and hpw much
+	if difference > 0 {
+		fmt.Println(p2_name, "owes", difference, currency)
+	} else if difference < 0 {
+		fmt.Println(p1_name, "owes", math.Abs(float64(difference)), currency)
+	} else if difference == 0 {
+		fmt.Println("You have lent the same amount.")
+	} else {
+		fmt.Println("Error: there is no difference data")
+	}
+}
 
 func main() {
 	// currency's acronyms
@@ -20,46 +62,118 @@ func main() {
 	)
 
 	// add all the same currencies
-	var total_eur, total_gbp, total_jpy float32 = 0.0, 0.0, 0.0
+	var total, total_eur, total_gbp, total_jpy float32 = 0.0, 0.0, 0.0, 0.0
 
 	//////////////////////////////
 	/////// RETRIEVE LIST ////////
 	//////////////////////////////
-
-	// default currency which will be converted
 	const default_currency = "eur"
 
-	var user_1_name, user_2_name string
-	var user_1_lent, user_2_lent float32 = 0.0, 0.0
+	// Define slices to store persons and lent amounts
+	// var person []Person
+	// person := []Person{}
+	person := make([]Person, 2)
+
+	//var item []Item
+	//  item := Item{
+	//	  name:       "Default Item",
+	//	  price:      0.0,
+	//	  currency:   "EUR",
+	//	  category:   "other",
+	//	  full_amount: false,
+	//}
+
+	// // map imput list
+	// var p, i int16 := 0, 0
+	// if first letter is "f" {
+	//    item
+	// } else if first letter is num {
+	//    item
+	// }
+	// } else if "#" first letter {
+	//   person[p].name = "(string after "# ")"
+	//   i++
+	// } else if "##" first 2 letters{
+	//   item[i].currency = (the part after "## ")
+	//
+	// // calculate it
+	// for p := 0; p <=10; p++ {
+	//   if detect new "#" {
+	//
+	//     for item[i] {}
+	//         if  {}
+	//         total += item[i].price
+	//     p++
+	//   } else if "page end" {
+	//       p = 11
+	//   }
+	// }
 
 	// detect the first '#', it will be the first user_1
 
 	// add money on user_1_lent
 
-	// after detecting the next "#", will start
+	// if detect another "#", then +1 to person[i] will start
 
-	// is adding money to
+	// is adding money to each currency
 
-	////////// TEST INPUT //////////
-	total_eur = total_eur + 3.0
-	total_gbp = total_gbp + 5.5
-	total_jpy = total_jpy + 0.0
+	//////////////////////////////
+	////////// TEST INPUT ////////
+	//////////////////////////////
+	// person[0].lent = 30
+	//  person[1].lent = 20
+	// Create a slice of Item structs
+	//item := []Item {}
 
-	total_eur = total_gbp * pte
-	total_eur = total_jpy * jte
+	for p := 0; p < 2; p++ {
+		if p == 0 {
+			item := []Item{
+				{"Bread", "f", 0, "eur", false},
+				{"Carrot", "f", 20, "eur", false},
+				{"Apple", "f", 10, "eur", false},
+			}
+			for i := 0; i < len(item); i++ {
+				total_eur += item[i].price
+			}
+			total = total_eur
+			person[p].lent = total_eur
+			fmt.Println("p1_lent: ", person[p].lent)
+		} else if p == 1 {
+			item := []Item{
+				{"Bread", "f", 10, "eur", false},
+				{"Carrot", "f", 20, "eur", false},
+				{"Apple", "f", 10, "eur", false},
+			}
+			for i := 0; i < len(item); i++ {
+				total_eur += item[i].price
+			}
+			total = total_eur
+			person[p].lent = total_eur
+			fmt.Println("p2_lent: ", person[p].lent)
+		}
+	}
+
+	// item[0].name = "carrot"
+
+	person[0].name = "Elephant"
+	person[1].name = "Mamut"
+
+	currency := default_currency
+
+	//  if currency == "eur" {
+	//    total_eur += item[i].price // add to eur
+	//  } else if currency == "gbp" {
+	//    total_gbp += item[i].price
+	//  } else {
+	//    fmt.Println("Error: No currency detected.")
+	//  }
+
+	//  total = total + total_eur
+	total = total + total_gbp*pte
+	total = total + total_jpy*jte
 
 	////////////////////////////////
+	////////////////////////////////
 
-	// calculate who owes more
-	var final_lent float32
-	// print who owes who and hpw much
-	if user_1_lent > user_2_lent {
-		final_lent = (user_1_lent - user_2_lent) / 2
-		fmt.Println(user_2_name, " owes ", final_lent, default_currency)
-	} else if user_2_lent > user_1_lent {
-		final_lent = (user_2_lent - user_1_lent) / 2
-		fmt.Println(user_1_name, " owes ", final_lent, default_currency)
-	} else {
-		fmt.Println("Error: Couldn't determined who owes")
-	}
+	finalPrint(person[0].lent, person[1].lent, person[0].name, person[1].name, currency)
 }
