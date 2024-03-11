@@ -1,13 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"math"
+	"os"
+	"strings"
 )
 
 //"io"
 //"bufio"
-//"strings"
 //  "os"
 //"strconv"
 
@@ -69,11 +71,6 @@ func main() {
 	//////////////////////////////
 	const default_currency = "eur"
 
-	// Define slices to store persons and lent amounts
-	// var person []Person
-	// person := []Person{}
-	person := make([]Person, 2)
-
 	//var item []Item
 	//  item := Item{
 	//	  name:       "Default Item",
@@ -118,6 +115,39 @@ func main() {
 	// is adding money to each currency
 
 	//////////////////////////////
+	/////////////////////////////
+	//////// OPEN MD ////////////
+	// Open the markdown file
+	file, err := os.Open("the-bills/test-2p-2i.md")
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	defer file.Close()
+
+	// Create a scanner to read the file line by line
+	scanner := bufio.NewScanner(file)
+
+	// Define slices to store persons and lent amounts
+	person := make([]Person, 0)
+
+	// Read each line of the file
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "# ") {
+			// Extract the name from the line and create a new Person
+			name := strings.TrimSpace(strings.TrimPrefix(line, "# "))
+			person = append(person, Person{name: name})
+			fmt.Println("detected:", person)
+		}
+	}
+
+	// Print the names of the people
+	for p := 0; p < len(person); p++ {
+		fmt.Printf("Person %d: %s\n", p+1, person[p].name)
+	}
+
+	//////////////////////////////
 	////////// TEST INPUT ////////
 	//////////////////////////////
 	// person[0].lent = 30
@@ -125,38 +155,38 @@ func main() {
 	// Create a slice of Item structs
 	//item := []Item {}
 
-	for p := 0; p < 2; p++ {
-		if p == 0 {
-			item := []Item{
-				{"Bread", "f", 0, "eur", false},
-				{"Carrot", "f", 20, "eur", false},
-				{"Apple", "f", 10, "eur", false},
-			}
-			for i := 0; i < len(item); i++ {
-				total_eur += item[i].price
-			}
-			total = total_eur
-			person[p].lent = total_eur
-			fmt.Println("p1_lent: ", person[p].lent)
-		} else if p == 1 {
-			item := []Item{
-				{"Bread", "f", 10, "eur", false},
-				{"Carrot", "f", 20, "eur", false},
-				{"Apple", "f", 10, "eur", false},
-			}
-			for i := 0; i < len(item); i++ {
-				total_eur += item[i].price
-			}
-			total = total_eur
-			person[p].lent = total_eur
-			fmt.Println("p2_lent: ", person[p].lent)
-		}
-	}
+	// for p := 0; p < 2; p++ {
+	// 	if p == 0 {
+	// 		item := []Item{
+	// 			{"Bread", "f", 0, "eur", false},
+	// 			{"Carrot", "f", 20, "eur", false},
+	// 			{"Apple", "f", 10, "eur", false},
+	// 		}
+	// 		for i := 0; i < len(item); i++ {
+	// 			total_eur += item[i].price
+	// 		}
+	// 		total = total_eur
+	// 		person[p].lent = total_eur
+	// 		fmt.Println("p1_lent: ", person[p].lent)
+	// 	} else if p == 1 {
+	// 		item := []Item{
+	// 			{"Bread", "f", 10, "eur", false},
+	// 			{"Carrot", "f", 20, "eur", false},
+	// 			{"Apple", "f", 10, "eur", false},
+	// 		}
+	// 		for i := 0; i < len(item); i++ {
+	// 			total_eur += item[i].price
+	// 		}
+	// 		total = total_eur
+	// 		person[p].lent = total_eur
+	// 		fmt.Println("p2_lent: ", person[p].lent)
+	// 	}
+	// }
 
 	// item[0].name = "carrot"
 
-	person[0].name = "Elephant"
-	person[1].name = "Mamut"
+	//	person[0].name = "Elephant"
+	//	person[1].name = "Mamut"
 
 	currency := default_currency
 
@@ -168,9 +198,9 @@ func main() {
 	//    fmt.Println("Error: No currency detected.")
 	//  }
 
-	//  total = total + total_eur
-	total = total + total_gbp*pte
-	total = total + total_jpy*jte
+	total += total_eur
+	total += total_gbp * pte
+	total += total_jpy * jte
 
 	////////////////////////////////
 	////////////////////////////////
