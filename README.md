@@ -54,6 +54,13 @@ If no categories are written will be categorize as [o]thers.
 
 ## Todo
 
+- [x] retrieve from a markdown
+- detect and process
+  - [x] names
+  - [x] currency
+  - [ ] item.price
+  - [ ] item.no_split
+  - [ ] item.category  
 - [ ] exchange currency
 - [ ] live exchange rate
 - [ ] after retrieve live exchange rate, save it locally,
