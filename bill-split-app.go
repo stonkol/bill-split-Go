@@ -23,11 +23,11 @@ type Item struct {
 	category string
 	price    float32
 	//	currency    string
-	full_amount bool
+	no_Split bool
 }
 
 type Currency struct {
-	//	full_name    string
+	// full_name    string
 	three_digits string
 	one_digit    string
 	total        float32
@@ -51,11 +51,11 @@ func finalPrint(p1_lent, p2_lent float32, p1_name, p2_name, currency string) {
 
 func main() {
 	// currency's acronyms
-	const (
-		e string = "eur"
+	//	const (
+	//		e string = "eur"
 	//	j string = "jpy"
 	//	p string = "gbp"
-	)
+	//	)
 
 	// currency exchange
 	const (
@@ -136,7 +136,20 @@ func main() {
 				itemLine := itemScanner.Text()
 				if len(strings.TrimSpace(itemLine)) == 0 {
 					person[p].lent = currency[p].total
-					break
+					/////////////////////////
+					break // TODO: will this break go out of if and for?
+
+					/////////////////////
+					//} else if strings.HasPrefix(line, [num]){ // TODO: not sure if the statement is corrrectly written
+
+					// price := strings.TrimSpace(strings.TrimPostfix())
+					// total+
+				} else if strings.HasPrefix(line, "f") {
+					f_prefix_trimmed := strings.TrimSpace(strings.TrimPrefix(line, "f"))
+					// item.amount = trim the part after the number // TODO:
+					// item.amount = append(item, Item{})
+					// item.amount *= 2
+					// total += item amount
 				}
 			}
 		}
