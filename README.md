@@ -4,6 +4,11 @@ A bill split app that supports multi live currency,will write
 the output in the terminal and in the text/md file itself.Will
 write in the top of the file.
 
+## 0. Why I made this app
+
+As the famous Splitwise only allow 6 bills added in one day, have annoying adds blocking too often while going to add a bill, I want to resolve it by make my own.
+For more privacy, compared to the normal bill split apps which stored it in a server.
+
 ## 1. Currencies
 
 Will have two types of currency written ways:
