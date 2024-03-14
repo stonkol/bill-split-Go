@@ -77,6 +77,7 @@ func scanCalcItems() []Person {
 	lineStartNumber := regexp.MustCompile(`^\s*\d+(\.\d+)?`)
 
 	p := -1
+	currency := make([]Currency, 0)
 
 	// Create a scanner to read the file line by line
 	scanner := bufio.NewScanner(file)
@@ -91,18 +92,34 @@ func scanCalcItems() []Person {
 		if strings.HasPrefix(line, "# ") {
 			p++
 
-			// Extract the name from the line and create a new Person
-			name := strings.TrimSpace(strings.TrimPrefix(line, "# "))
-			person = append(person, Person{name: name})
-			fmt.Println("\n p, name, line:", p, name, line)
-			// person[p].name = name
-			// fmt.Println("detected:", line)
+			/////// PERSON 2 ////////
+			if p == 1 {
+				// add that currency total
+				// currencyConverter(currencyTotal, whichcurrency)
+				name := strings.TrimSpace(strings.TrimPrefix(line, "# "))
+				person = append(person, Person{name: name})
 
+				// person[p].lent = currency[p].total
+				// fmt.Println("\n p, name, line:", p, name, line)
+				fmt.Println("\n p:", p, "name:", name)
+
+				//////// PERSON 1 //////////
+			} else if p == 0 {
+				// Extract the name from the line and create a new Person
+				name := strings.TrimSpace(strings.TrimPrefix(line, "# "))
+				person = append(person, Person{name: name})
+				//  fmt.Println("\n p, name, line:", p, name, line)
+				// person[p].name = name
+				// fmt.Println("detected:", line)
+
+				//////// ERROR /////////
+			} else {
+				fmt.Println("Error: else of Person.")
+			}
 			///////////////////////////////////////////////////
 			//////////////////  CURRENCY /////////////////////
 			//////////////////////////////////////////////////
 		} else if strings.HasPrefix(line, "## ") {
-			currency := make([]Currency, 0)
 
 			three_digits := strings.TrimSpace(strings.TrimPrefix(line, "## "))
 			// Convert currency1 to uppercase if it's not already
@@ -121,51 +138,59 @@ func scanCalcItems() []Person {
 			//itemScanner := bufio.NewScanner(strings.NewReader(line))
 			//scanner := bufio.NewScanner(file)
 
-			for scanner.Scan() {
-				// fmt.Println("itemScanner loop ->") // check
-				// currencyLine := currencyScanner.Text()
-				itemLine := scanner.Text()
+			// for scanner.Scan() {
+			// fmt.Println("itemScanner loop ->") // check
+			// currencyLine := currencyScanner.Text()
+			//	itemLine := scanner.Text()
 
-				fmt.Println("itemLine:", itemLine)
+			//	fmt.Println("itemLine:", line)
 
-				///////////// NEW PERSON DETECTED: Break
-				if strings.HasPrefix(itemLine, "# ") {
+			///////////// NEW PERSON DETECTED: Break
+			//if strings.HasPrefix(itemLine, "# ") {
 
-					fmt.Println("new Person detected.")
-					// add that currency total
-					// currencyConverter(currencyTotal, whichcurrency)
-					person[p].lent = currency[p].total
-					/////////////////////////
-					// continue // TODO: will this break go out of if and for?
+			//	fmt.Println("new Person detected.")
+			// add that currency total
+			// currencyConverter(currencyTotal, whichcurrency)
+			//person[p].lent = currency[p].total
+			/////////////////////////
+			// continue // TODO: will this break go out of if and for?
 
-					///////////// NUMBER detected /////////////
-				} else if lineStartNumber.MatchString(itemLine) { // WARNING: not corrrectly written
+			///////////// NUMBER detected /////////////
+		} else if lineStartNumber.MatchString(line) { // WARNING: not corrrectly written
 
-					// FindStringSubmatch returns a slice of strings containing the text of the leftmost match and the matches found by the capturing groups.
-					match := lineStartNumber.FindStringSubmatch(itemLine)
-					// match is the slice returned by FindStringSubmatch, and match[1] refers to the first captured group
-					itemPrice := match[1]
+			// FindStringSubmatch returns a slice of strings containing the text of the leftmost match and the matches found by the capturing groups.
+			match := lineStartNumber.FindStringSubmatch(line)
+			// match is the slice returned by FindStringSubmatch, and match[1] refers to the first captured group
+			itemPrice := match[0]
 
-					fmt.Println("item detected:", itemPrice, ". In the line:", itemLine)
-					// total += itemPrice
+			// fmt.Println("match:", match, "match[0], match[1]:", match[0], match[1]) // check
+			fmt.Println(" - Item price:", itemPrice, " (whole line:", line, ")")
+			// total += itemPrice
 
-					///////////// F detected //////////////////
-				} else if strings.HasPrefix(line, "f") {
-					// TODO:
-					// f_prefix_trimmed := strings.TrimSpace(strings.TrimPrefix(line, "f"))
-					// item.amount = trim the part after the number
-					// item.amount = append(item, Item{})
-					// item.amount *= 2
-					// total += item amounts
+			///////////////////////////////////////////
+			//////////////// BLANK LINE //////////////
+			///////////////////////////////////////////
+		} else if len(strings.TrimSpace(line)) == 0 {
+			//////////////////////////////////////////
+			///////////// F detected //////////////////
+			/////////////////////////////////////////
+		} else if strings.HasPrefix(line, "f") {
+			// TODO:
+			// f_prefix_trimmed := strings.TrimSpace(strings.TrimPrefix(line, "f"))
+			// item.amount = trim the part after the number
+			// item.amount = append(item, Item{})
+			// item.amount *= 2
+			// total += item amounts
 
-					fmt.Println("Non splitted item found:", itemLine)
-				} else {
-					fmt.Println("ERROR: in \"else\" of the itemScanner")
-				}
-			}
+			fmt.Println("Non splitted item found:", line)
+
+			/////////////////////////////////////////
+			/////////////// ERROR ///////////////////
+			/////////////////////////////////////////
+		} else {
+			fmt.Println("ERROR: else of itemScanner")
 		}
 	}
-
 	return person
 }
 
