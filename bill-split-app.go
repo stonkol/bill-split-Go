@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"regexp"
 	"strings"
 )
 
@@ -57,10 +58,10 @@ func main() {
 	//	p string = "gbp"
 	//	)
 
-	// currency exchange
+	////// EXCHANGE RATE ////////////////////
 	const (
 		pte float32 = 1.18
-		etp float32 = 0.85 // pound to euro, euro to pound
+		etp float32 = 0.85 // euro to pound
 		jte float32 = 0.01
 	)
 
@@ -93,7 +94,11 @@ func main() {
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		///////////// PERSON ///////////////
+		numberPattern := regexp.MustCompile(`^\s*\d+(\.\d+)?`) // ^\s*\d+(\.\d+)? matches lines that start with an optional whitespace, followed by one or more digits, which can be followed by a decimal point and one or more digits.
+
+		///////////////////////////////////////////////////
+		/////////////////// PERSON ///////////////////////
+		/////////////////////////////////////////////////////
 		if strings.HasPrefix(line, "# ") {
 			p++
 
@@ -104,11 +109,12 @@ func main() {
 			// person[p].name = name
 			// fmt.Println("detected:", line)
 
-			// // CURRENCY
+			///////////////////////////////////////////////////
+			//////////////////  CURRENCY /////////////////////
+			//////////////////////////////////////////////////
 			// for {
 			// 	if strings.HasPrefix(line, "## ") {
 			// 		currency := make([]Currency, 0)
-			//
 			// 		three_digits := strings.TrimSpace(strings.TrimPrefix(line, "## "))
 			// 		currency = append(currency, Currency{three_digits: three_digits})
 			// 		fmt.Println("new currency:", line)
@@ -120,16 +126,19 @@ func main() {
 			// 		break
 			// 	}
 			// }
-			//////////////////  CURRENCY /////////////////////
 		} else if strings.HasPrefix(line, "## ") {
 			currency := make([]Currency, 0)
 
 			three_digits := strings.TrimSpace(strings.TrimPrefix(line, "## "))
 			currency = append(currency, Currency{three_digits: three_digits})
 
-			fmt.Println("new currency:", three_digits)
+			fmt.Println("currency:", three_digits)
 
 			// currencyScanner := bufio.NewScanner(strings.NewReader(line))
+
+			///////////////////////////////////////////////////
+			//////////////////// ITEM /////////////////////////
+			///////////////////////////////////////////////////
 			itemScanner := bufio.NewScanner(strings.NewReader(line))
 			for itemScanner.Scan() {
 				// currencyLine := currencyScanner.Text()
@@ -139,14 +148,17 @@ func main() {
 					/////////////////////////
 					break // TODO: will this break go out of if and for?
 
-					/////////////////////
-					//} else if strings.HasPrefix(line, [num]){ // TODO: not sure if the statement is corrrectly written
+					///////////// NUMBER detected /////////////
+				} else if numberPattern.MatchString(itemLine) { // TODO: not sure if the statement is corrrectly written
 
 					// price := strings.TrimSpace(strings.TrimPostfix())
 					// total+
+
+					///////////// F detected //////////////////
 				} else if strings.HasPrefix(line, "f") {
-					f_prefix_trimmed := strings.TrimSpace(strings.TrimPrefix(line, "f"))
-					// item.amount = trim the part after the number // TODO:
+					// TODO:
+					// f_prefix_trimmed := strings.TrimSpace(strings.TrimPrefix(line, "f"))
+					// item.amount = trim the part after the number
 					// item.amount = append(item, Item{})
 					// item.amount *= 2
 					// total += item amount
