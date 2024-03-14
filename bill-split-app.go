@@ -29,12 +29,12 @@ type Currency struct {
 	total        float32
 }
 
-// currency's acronyms
-//	const (
-//		e string = "eur"
+// TODO: currency's acronyms
+//const (
+//	e string = "eur"
 //	j string = "jpy"
-//	p string = "gbp"
-//	)
+//  p string = "gbp"
+//)
 
 const default_currency string = "eur"
 
@@ -250,21 +250,8 @@ func main() {
 	//	person[0].name = "Elephant"
 	//	person[1].name = "Mamut"
 
-	//	currency := default_currency
-
-	//  if currency == "eur" {
-	//    total_eur += item[i].price // add to eur
-	//  } else if currency == "gbp" {
-	//    total_gbp += item[i].price
-	//  } else {
-	//    fmt.Println("Error: No currency detected.")
-	//  }
-
-	// total += total_eur
-	// total += total_gbp * pte
-	// total += total_jpy * jte
-
 	////////////////////////////////
+	///// TEST INPUT ENDED /////////
 	////////////////////////////////
 
 	finalPrint(person[0].lent, person[1].lent, person[0].name, person[1].name, default_currency)
