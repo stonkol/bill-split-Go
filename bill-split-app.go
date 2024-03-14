@@ -12,7 +12,7 @@ import (
 
 type Person struct {
 	name string
-	lent float32 // is recommended to don't stored in decimals
+	lent float32 // is recommended not to store in decimals
 }
 
 type Item struct {
@@ -30,7 +30,7 @@ type Currency struct {
 	total        float32
 }
 
-// TODO: currency's acronyms
+//       TODO: currency's acronyms
 //const (
 //	e string = "eur"
 //	j string = "jpy"
@@ -158,9 +158,11 @@ func scanCalcItems() []Person {
 			///////////// NUMBER detected /////////////
 		} else if lineStartNumber.MatchString(line) { // WARNING: not corrrectly written
 
-			// FindStringSubmatch returns a slice of strings containing the text of the leftmost match and the matches found by the capturing groups.
+			// FindStringSubmatch returns a slice of strings containing the text
+			// of the leftmost match and the matches found by the capturing groups.
 			match := lineStartNumber.FindStringSubmatch(line)
-			// match is the slice returned by FindStringSubmatch, and match[1] refers to the first captured group
+			// match is the slice returned by FindStringSubmatch,
+			// and match[1] refers to the first captured group
 			itemPrice := match[0]
 
 			// fmt.Println("match:", match, "match[0], match[1]:", match[0], match[1]) // check
