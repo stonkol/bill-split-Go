@@ -9,11 +9,6 @@ import (
 	"strings"
 )
 
-//"io"
-//"bufio"
-//  "os"
-//"strconv"
-
 type Person struct {
 	name string
 	lent float32 // is recommended to don't stored in decimals
@@ -34,67 +29,57 @@ type Currency struct {
 	total        float32
 }
 
-func finalPrint(p1_lent, p2_lent float32, p1_name, p2_name, currency string) {
-	// calculate who owes more
-	difference := (p1_lent - p2_lent) / 2
+// currency's acronyms
+//	const (
+//		e string = "eur"
+//	j string = "jpy"
+//	p string = "gbp"
+//	)
 
-	// print who owes who and hpw much
-	if difference > 0 {
-		fmt.Println(p2_name, "owes", difference, currency)
-	} else if difference < 0 {
-		fmt.Println(p1_name, "owes", math.Abs(float64(difference)), currency)
-	} else if difference == 0 {
-		fmt.Println("You have lent the same amount.")
-	} else {
-		fmt.Println("Error: there is no difference data")
-	}
+const default_currency string = "eur"
+
+// Exchange rates matrix
+var exchangeRates = map[string]map[string]float32{
+	"USD": {"USD": 1.0, "EUR": 0.84, "GBP": 0.73, "JPY": 109.56},
+	"EUR": {"USD": 1.19, "EUR": 1.0, "GBP": 0.87, "JPY": 130.50},
+	"GBP": {"USD": 1.38, "EUR": 1.15, "GBP": 1.0, "JPY": 150.34},
+	"JPY": {"USD": 0.0091, "EUR": 0.0077, "GBP": 0.0067, "JPY": 1.0},
 }
 
-func main() {
-	// currency's acronyms
-	//	const (
-	//		e string = "eur"
-	//	j string = "jpy"
-	//	p string = "gbp"
-	//	)
+// Exchange function
+func currencyConverter(totalPrice float32, currencyIn, currencyOut string) (float32, error) {
+	rate, ok := exchangeRates[currencyIn][currencyOut]
+	if !ok {
+		return 0, fmt.Errorf("exchange rate not found for %s to %s", currencyIn, currencyOut)
+	}
+	return totalPrice * rate, nil
+}
 
-	////// EXCHANGE RATE ////////////////////
-	const (
-		pte float32 = 1.18
-		etp float32 = 0.85 // euro to pound
-		jte float32 = 0.01
-	)
-
-	// add all the same currencies
-	// var total, total_eur, total_gbp, total_jpy float32 = 0.0, 0.0, 0.0, 0.0
+func scanCalcItems() []Person {
+	// Define slices to store persons and lent amounts
+	person := make([]Person, 0)
 
 	//////////////////////////////
 	/////// RETRIEVE LIST ////////
 	//////////////////////////////
-	const default_currency = "eur"
-
-	//////////////////////////////
-	/////////////////////////////
-	//////// OPEN MD ////////////
+	//////// OPEN MD
 	file, err := os.Open("the-bills/test-2p-2c-2i.md")
 	if err != nil {
 		fmt.Println("Error:", err)
-		return
+		return person
 	}
 	defer file.Close()
+
+	p := -1
 
 	// Create a scanner to read the file line by line
 	scanner := bufio.NewScanner(file)
 
-	// Define slices to store persons and lent amounts
-	person := make([]Person, 0)
-
-	p := -1
 	// Read each line of the file
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		numberPattern := regexp.MustCompile(`^\s*\d+(\.\d+)?`) // ^\s*\d+(\.\d+)? matches lines that start with an optional whitespace, followed by one or more digits, which can be followed by a decimal point and one or more digits.
+		lineStartNumber := regexp.MustCompile(`^\s*\d+(\.\d+)?`) // ^\s*\d+(\.\d+)? matches lines that start with an optional whitespace, followed by one or more digits, which can be followed by a decimal point and one or more digits.
 
 		///////////////////////////////////////////////////
 		/////////////////// PERSON ///////////////////////
@@ -112,24 +97,14 @@ func main() {
 			///////////////////////////////////////////////////
 			//////////////////  CURRENCY /////////////////////
 			//////////////////////////////////////////////////
-			// for {
-			// 	if strings.HasPrefix(line, "## ") {
-			// 		currency := make([]Currency, 0)
-			// 		three_digits := strings.TrimSpace(strings.TrimPrefix(line, "## "))
-			// 		currency = append(currency, Currency{three_digits: three_digits})
-			// 		fmt.Println("new currency:", line)
-			//
-			// 		// detect a blank line
-			// 	} else if len(strings.TrimSpace(line)) == 0 {
-			// 		// calculate total
-			//
-			// 		break
-			// 	}
-			// }
 		} else if strings.HasPrefix(line, "## ") {
 			currency := make([]Currency, 0)
 
 			three_digits := strings.TrimSpace(strings.TrimPrefix(line, "## "))
+			// Convert currency1 to uppercase if it's not already
+			if three_digits != strings.ToUpper(three_digits) {
+				three_digits = strings.ToUpper(three_digits)
+			}
 			currency = append(currency, Currency{three_digits: three_digits})
 
 			fmt.Println("currency:", three_digits)
@@ -141,18 +116,29 @@ func main() {
 			///////////////////////////////////////////////////
 			itemScanner := bufio.NewScanner(strings.NewReader(line))
 			for itemScanner.Scan() {
+				fmt.Println("itemScanner loop ->")
 				// currencyLine := currencyScanner.Text()
 				itemLine := itemScanner.Text()
-				if len(strings.TrimSpace(itemLine)) == 0 {
+
+				///////////// NEW PERSON DETECTED: Break
+				if strings.HasPrefix(itemLine, "# ") {
+
+					// add that currency total
+					// currencyConverter(currencyTotal, whichcurrency)
 					person[p].lent = currency[p].total
 					/////////////////////////
 					break // TODO: will this break go out of if and for?
 
 					///////////// NUMBER detected /////////////
-				} else if numberPattern.MatchString(itemLine) { // TODO: not sure if the statement is corrrectly written
+				} else if lineStartNumber.MatchString(itemLine) { // TODO: not sure if the statement is corrrectly written
 
-					// price := strings.TrimSpace(strings.TrimPostfix())
-					// total+
+					// FindStringSubmatch returns a slice of strings containing the text of the leftmost match and the matches found by the capturing groups.
+					match := lineStartNumber.FindStringSubmatch(itemLine)
+					// match is the slice returned by FindStringSubmatch, and match[1] refers to the first captured group
+					itemPrice := match[1]
+
+					fmt.Println("item detected:", itemPrice, ". In the line:", itemLine)
+					// total += itemPrice
 
 					///////////// F detected //////////////////
 				} else if strings.HasPrefix(line, "f") {
@@ -161,18 +147,41 @@ func main() {
 					// item.amount = trim the part after the number
 					// item.amount = append(item, Item{})
 					// item.amount *= 2
-					// total += item amount
+					// total += item amounts
+
+					fmt.Println("Non splitted item found:", itemLine)
 				}
 			}
 		}
-		// else if len(strings.TrimSpace(line)) == 0 {
-		//			// calculate total
-		//    break
-		//	}
 	}
 
+	return person
+}
+
+func finalPrint(p1_lent, p2_lent float32, p1_name, p2_name, currency string) {
+	// calculate who owes more
+	difference := (p1_lent - p2_lent) / 2
+
+	// print who owes who and hpw much
+	if difference > 0 {
+		fmt.Println(p2_name, "owes", difference, currency)
+	} else if difference < 0 {
+		fmt.Println(p1_name, "owes", math.Abs(float64(difference)), currency)
+	} else if difference == 0 {
+		fmt.Println("You have lent the same amount.")
+	} else {
+		fmt.Println("Error: there is no difference data")
+	}
+}
+
+func main() {
+	// maybe make map to store multiple currencies in one variable?
+	// var total, total_eur, total_gbp, total_jpy float32 = 0.0, 0.0, 0.0, 0.0
+
+	person := scanCalcItems()
+
 	// Print the names of the people
-	fmt.Println("______________")
+	fmt.Println("\n______________")
 	for p := 0; p < len(person); p++ {
 		fmt.Printf("Person %d: %s\n", p+1, person[p].name)
 	}
@@ -180,10 +189,33 @@ func main() {
 	//////////////////////////////
 	////////// TEST INPUT ////////
 	//////////////////////////////
+	// Declare an array of currencies
+	currencies := [4]string{"EUR", "jpy", "usd", "GBP"}
+
+	// Convert each currency to uppercase if it's not already
+	for i, currency := range currencies {
+		if currency != strings.ToUpper(currency) {
+			currencies[i] = strings.ToUpper(currency)
+		}
+	}
+	converted, err := currencyConverter(1, currencies[0], currencies[1])
+	fmt.Print("Currency Check: 1 EUR = ", converted, "JPY, ")
+
+	converted, err = currencyConverter(1, currencies[0], currencies[2])
+	fmt.Print(converted, "USD, ")
+
+	converted, err = currencyConverter(1, currencies[0], currencies[3])
+	fmt.Println(converted, "GBP")
+
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
 	// person[0].lent = 30
 	//  person[1].lent = 20
 	// Create a slice of Item structs
-	//item := []Item {}
+	// item := []Item {}
 
 	// for p := 0; p < 2; p++ {
 	// 	if p == 0 {
@@ -280,3 +312,22 @@ func main() {
 // if detect another "#", then +1 to person[i] will start
 
 // is adding money to each currency
+//
+//
+// 			///////////////////////////////////////////////////
+//////////////////  CURRENCY /////////////////////
+//////////////////////////////////////////////////
+// for {
+// 	if strings.HasPrefix(line, "## ") {
+// 		currency := make([]Currency, 0)
+// 		three_digits := strings.TrimSpace(strings.TrimPrefix(line, "## "))
+// 		currency = append(currency, Currency{three_digits: three_digits})
+// 		fmt.Println("new currency:", line)
+//
+// 		// detect a blank line
+// 	} else if len(strings.TrimSpace(line)) == 0 {
+// 		// calculate total
+//
+// 		break
+// 	}
+// }
