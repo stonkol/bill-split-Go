@@ -63,16 +63,22 @@ If no categories are written will be categorize as [o]thers.
 - detect and process
   - [x] names
   - [x] currency
-  - [ ] item.price
+  - [x] item.price
   - [ ] item.no_split
   - [ ] item.category  
-- [ ] exchange currency
+- [x] exchange currency
 - [ ] live exchange rate
 - [ ] after retrieve live exchange rate, save it locally,
 so can exchange when the computer do not have internet
 - [ ] split for 2 ppl
 - [ ] split for >=3 ppl
-- [ ] have categories: groceries(g), fun/events(f), health(h)
+- [ ] implement categories: groceries(g), fun/events(f), health(h)
+- [ ] visualise
+  - [ ] in the terminal
+  - [ ] in the browser locally
+  - [ ] a graph
+- [ ] selfhost it
+- [ ] others can add bill using the browser with the phone/pc
 
 ## Example file
 
@@ -80,6 +86,7 @@ so can exchange when the computer do not have internet
 # 2020 Japan Travel
 
 - from 3rd Jul to 6th Jul
+- default currency: eur
 
 ## Susan
 
