@@ -1,5 +1,6 @@
 package main
 
+// regexp: for detecting if the line started as a number
 import (
 	"bufio"
 	"fmt"
@@ -70,6 +71,11 @@ func scanCalcItems() []Person {
 	}
 	defer file.Close()
 
+	// ^\s*\d+(\.\d+)? matches lines that start with an optional whitespace,
+	// followed by one or more digits, which can be followed by a decimal point
+	// and one or more digits.
+	lineStartNumber := regexp.MustCompile(`^\s*\d+(\.\d+)?`)
+
 	p := -1
 
 	// Create a scanner to read the file line by line
@@ -78,8 +84,6 @@ func scanCalcItems() []Person {
 	// Read each line of the file
 	for scanner.Scan() {
 		line := scanner.Text()
-
-		lineStartNumber := regexp.MustCompile(`^\s*\d+(\.\d+)?`) // ^\s*\d+(\.\d+)? matches lines that start with an optional whitespace, followed by one or more digits, which can be followed by a decimal point and one or more digits.
 
 		///////////////////////////////////////////////////
 		/////////////////// PERSON ///////////////////////
@@ -114,23 +118,28 @@ func scanCalcItems() []Person {
 			///////////////////////////////////////////////////
 			//////////////////// ITEM /////////////////////////
 			///////////////////////////////////////////////////
-			itemScanner := bufio.NewScanner(strings.NewReader(line))
-			for itemScanner.Scan() {
-				fmt.Println("itemScanner loop ->")
+			//itemScanner := bufio.NewScanner(strings.NewReader(line))
+			//scanner := bufio.NewScanner(file)
+
+			for scanner.Scan() {
+				// fmt.Println("itemScanner loop ->") // check
 				// currencyLine := currencyScanner.Text()
-				itemLine := itemScanner.Text()
+				itemLine := scanner.Text()
+
+				fmt.Println("itemLine:", itemLine)
 
 				///////////// NEW PERSON DETECTED: Break
 				if strings.HasPrefix(itemLine, "# ") {
 
+					fmt.Println("new Person detected.")
 					// add that currency total
 					// currencyConverter(currencyTotal, whichcurrency)
 					person[p].lent = currency[p].total
 					/////////////////////////
-					break // TODO: will this break go out of if and for?
+					// continue // TODO: will this break go out of if and for?
 
 					///////////// NUMBER detected /////////////
-				} else if lineStartNumber.MatchString(itemLine) { // TODO: not sure if the statement is corrrectly written
+				} else if lineStartNumber.MatchString(itemLine) { // WARNING: not corrrectly written
 
 					// FindStringSubmatch returns a slice of strings containing the text of the leftmost match and the matches found by the capturing groups.
 					match := lineStartNumber.FindStringSubmatch(itemLine)
@@ -150,6 +159,8 @@ func scanCalcItems() []Person {
 					// total += item amounts
 
 					fmt.Println("Non splitted item found:", itemLine)
+				} else {
+					fmt.Println("ERROR: in \"else\" of the itemScanner")
 				}
 			}
 		}
@@ -174,18 +185,7 @@ func finalPrint(p1_lent, p2_lent float32, p1_name, p2_name, currency string) {
 	}
 }
 
-func main() {
-	// maybe make map to store multiple currencies in one variable?
-	// var total, total_eur, total_gbp, total_jpy float32 = 0.0, 0.0, 0.0, 0.0
-
-	person := scanCalcItems()
-
-	// Print the names of the people
-	fmt.Println("\n______________")
-	for p := 0; p < len(person); p++ {
-		fmt.Printf("Person %d: %s\n", p+1, person[p].name)
-	}
-
+func testings() {
 	//////////////////////////////
 	////////// TEST INPUT ////////
 	//////////////////////////////
@@ -253,8 +253,25 @@ func main() {
 	////////////////////////////////
 	///// TEST INPUT ENDED /////////
 	////////////////////////////////
+}
 
+func main() {
+	// maybe make map to store multiple currencies in one variable?
+	// var total, total_eur, total_gbp, total_jpy float32 = 0.0, 0.0, 0.0, 0.0
+
+	// Print the names of the people
+	person := scanCalcItems()
+	fmt.Println("\n__ PERSONS ___")
+	for p := 0; p < len(person); p++ {
+		fmt.Printf("P%d: %s\n", p+1, person[p].name)
+	}
+
+	fmt.Println("\n___ TESTINGS ___")
+	testings()
+
+	fmt.Println("\n\n\n============ MAIN OUTPUT ============\n")
 	finalPrint(person[0].lent, person[1].lent, person[0].name, person[1].name, default_currency)
+	fmt.Println("====================================\n\n")
 }
 
 //var item []Item
