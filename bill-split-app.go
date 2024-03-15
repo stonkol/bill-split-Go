@@ -17,7 +17,7 @@ type Person struct {
 }
 
 type Item struct {
-	//	name        string
+	name     string
 	category string
 	price    float32
 	//	currency    string
@@ -27,24 +27,15 @@ type Item struct {
 type Currency struct {
 	// full_name    string
 	three_digits string
-	one_digit    string
-	total        float32
+	// one_digit    string
+	total float32
 }
-
-//       TODO: currency's acronyms
-//const (
-//	e string = "eur"
-//	j string = "jpy"
-//  p string = "gbp"
-//)
 
 const default_currency string = "EUR"
 
 var prefCurrency string = default_currency
 
 var exchangedPrice float32 = 0.0
-
-// var err string
 
 // Exchange rates matrix
 var exchangeRates = map[string]map[string]float32{
@@ -162,8 +153,8 @@ func scanCalcItems(filePath string) []Person {
 			} else {
 				fmt.Println("Error: else of Person.")
 			}
-			//			fmt.Println("\n P", p, "name:", name, "person:", person[p].name)
-			fmt.Printf("\n---------- %s ----------\n", person[p].name)
+			// fmt.Println("\n P", p, "name:", name, "person:", person[p].name)
+			fmt.Printf("\n   –––––––––––– %s ––––––––––––", person[p].name)
 
 			///////////////////////////////////////////////////
 			//////////////////  CURRENCY /////////////////////
@@ -203,9 +194,7 @@ func scanCalcItems(filePath string) []Person {
 			// currency = append(currency, Currency{three_digits: three_digits})
 			// currency[c].three_digits = three_digits
 
-			fmt.Println("\n +", three_digits)
-
-			// currencyScanner := bufio.NewScanner(strings.NewReader(line))
+			fmt.Printf("\n   %s ->\n", three_digits)
 
 			///////////////////////////////////////////////////
 			//////////////////// ITEM /////////////////////////
@@ -248,21 +237,21 @@ func scanCalcItems(filePath string) []Person {
 			// totalLend += float32(itemPriceFloat)
 			currencyTotal += float32(itemPriceFloat)
 
-			//		} else if strings.HasPrefix(line, "f") {
-			// f_prefix_trimmed := strings.TrimSpace(strings.TrimPrefix(line, "f"))
-			// item.amount = trim the part after the number
-			// item.amount = append(item, Item{})
-			// item.amount *= 2
-			// total += item amounts
-
-			//		fmt.Println("Non splitted item found:", line)
-
 			///////////////////////////////////////////
 			//////////////// BLANK LINE ///////////////
 			///////////////////////////////////////////
-		} else if len(strings.TrimSpace(line)) == 0 {
+		} else if len(strings.TrimSpace(line)) == 0 || strings.HasPrefix(line, "### ") {
 			continue
 
+			/////////////////////////////////////////
+			////////////////// DATE /////////////////
+		} else if strings.HasPrefix(line, "d") {
+			// retrieve date
+			/////////////////////////////////////////
+			///////////// prefCurrency ///////////
+		} else if strings.HasPrefix(line, "c") {
+			prefCurrency = line[len(line)-3:]
+			fmt.Println("\n   Preferred currency ->", prefCurrency)
 			/////////////////////////////////////////
 			/////////////// ERROR ///////////////////
 			/////////////////////////////////////////
@@ -292,8 +281,6 @@ func scanCalcItems(filePath string) []Person {
 		person[p].lent = totalLend
 		fmt.Printf("\n -> %s lent: %.2f \n", person[p].name, person[p].lent)
 	}
-
-	// finalPrint(person[0].lent, person[1].lent, person[0].name, person[1].name, prefCurrency)
 
 	return person
 }
@@ -375,8 +362,6 @@ func main() {
 	filepath := os.Args[1]
 	person := scanCalcItems(filepath)
 
-	//////
-	//person := scanCalcItems()
 	// testings()
 
 	fmt.Println("\n\n=============== BILL ===============\n")

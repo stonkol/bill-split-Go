@@ -67,7 +67,7 @@ If no categories are written will be categorize as [o]thers.
   - [x] names
   - [x] currency
   - [x] item.price
-  - [ ] item.no_split
+  - [x] item.no_split
   - [ ] item.category  
 - exchange
   - [x] currency
@@ -77,8 +77,8 @@ so can exchange when the computer do not have internet
 - [x] split for 2 ppl
 - [ ] split for >=3 ppl
 - [ ] implement categories: groceries(g), fun/events(f), health(h)
-- [ ] visualise
-  - [ ] in the terminal
+- visualise
+  - [x] in the terminal
   - [ ] in the browser locally
   - [ ] a graph
 - [ ] self host it
