@@ -69,18 +69,19 @@ If no categories are written will be categorize as [o]thers.
   - [x] item.price
   - [ ] item.no_split
   - [ ] item.category  
-- [x] exchange currency
-- [ ] live exchange rate
-- [ ] after retrieve live exchange rate, save it locally,
+- exchange
+  - [x] currency
+  - [ ] live exchange
+  - [ ] update live and auto save it locally
 so can exchange when the computer do not have internet
-- [ ] split for 2 ppl
+- [x] split for 2 ppl
 - [ ] split for >=3 ppl
 - [ ] implement categories: groceries(g), fun/events(f), health(h)
 - [ ] visualise
   - [ ] in the terminal
   - [ ] in the browser locally
   - [ ] a graph
-- [ ] selfhost it
+- [ ] self host it
 - [ ] others can add bill using the browser with the phone/pc
 
 ## Example file

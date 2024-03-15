@@ -84,7 +84,7 @@ func finalPrint(p1_lent, p2_lent float32, p1_name, p2_name, currency string) {
 	fmt.Println("")
 }
 
-func scanCalcItems() []Person {
+func scanCalcItems(filePath string) []Person {
 	// Define slices to store persons and lent amounts
 	person := make([]Person, 0)
 
@@ -92,7 +92,9 @@ func scanCalcItems() []Person {
 	/////// RETRIEVE LIST ////////
 	//////////////////////////////
 	//////// OPEN MD
-	file, err := os.Open("the-bills/test-2p-2c-2i.md")
+
+	// file, err := os.Open("the-bills/test-2p-2c-2i.md")
+	file, err := os.Open(filePath)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return person
@@ -136,10 +138,10 @@ func scanCalcItems() []Person {
 
 				if three_digits != prefCurrency {
 					currencyTotalExchanged, err = currencyConverter(currencyTotal, three_digits, prefCurrency)
-					fmt.Printf("exchanging %.2f %s into %.2f %s.\n", currencyTotal, three_digits, currencyTotalExchanged, prefCurrency)
+					fmt.Printf("   %.2f %s -> %.2f %s.\n", currencyTotal, three_digits, currencyTotalExchanged, prefCurrency)
 				} else {
 					currencyTotalExchanged = currencyTotal
-					fmt.Println("Is already prefCurrency:", prefCurrency)
+					// fmt.Println("Is already prefCurrency:", prefCurrency)
 				}
 				currency = append(currency, Currency{total: currencyTotalExchanged})
 				totalLend += currencyTotalExchanged
@@ -150,7 +152,7 @@ func scanCalcItems() []Person {
 				person[p-1].lent = totalLend
 				totalLend = 0.0
 				// fmt.Println("\n ->", person[p-1].name, "lent:", person[p-1].lent)
-				fmt.Println("\n ->", person[p-1].name, "lent:", person[p-1].lent)
+				fmt.Printf("\n -> %s lent: %.2f \n", person[p-1].name, person[p-1].lent)
 
 				//////// PERSON 1 start//////////
 			} else if p == 0 {
@@ -173,13 +175,14 @@ func scanCalcItems() []Person {
 			if len(three_digits) > 0 && !personChangedTrue {
 				if three_digits != prefCurrency {
 					currencyTotalExchanged, err = currencyConverter(currencyTotal, three_digits, prefCurrency)
-					fmt.Printf("exchanging %.2f %s into %.2f %s.\n", currencyTotal, three_digits, currencyTotalExchanged, prefCurrency)
+					fmt.Printf("    %.2f %s -> %.2f %s.\n", currencyTotal, three_digits, currencyTotalExchanged, prefCurrency)
 				} else {
 					currencyTotalExchanged = currencyTotal
-					fmt.Println("Is already prefCurrency:", prefCurrency)
+					// fmt.Println("Is already prefCurrency:", prefCurrency)
 				}
 				currency = append(currency, Currency{total: currencyTotalExchanged})
 				totalLend += currencyTotalExchanged
+				fmt.Printf("   ––––––––––––––\n   = %.2f %s \n", currencyTotalExchanged, three_digits)
 				currencyTotal, currencyTotalExchanged = 0.0, 0.0
 			}
 
@@ -197,7 +200,7 @@ func scanCalcItems() []Person {
 			// currency = append(currency, Currency{three_digits: three_digits})
 			// currency[c].three_digits = three_digits
 
-			fmt.Println(" = currency:", three_digits)
+			fmt.Println("\n +", three_digits)
 
 			// currencyScanner := bufio.NewScanner(strings.NewReader(line))
 
@@ -213,6 +216,7 @@ func scanCalcItems() []Person {
 			// match is the slice returned by FindStringSubmatch,
 			// and match[1] refers to the first captured group
 			itemPrice := match[0]
+			itemDescription := strings.TrimSpace(strings.TrimPrefix(line, itemPrice))
 
 			// Convert the string to a float32
 			itemPriceFloat, err := strconv.ParseFloat(itemPrice, 32)
@@ -222,7 +226,7 @@ func scanCalcItems() []Person {
 			}
 
 			// fmt.Println("match:", match, "match[0], match[1]:", match[0], match[1]) // check
-			fmt.Printf(" - Adedd %.2f to total lent.\n", itemPriceFloat)
+			fmt.Printf("   %.2f - %s\n", itemPriceFloat, itemDescription)
 
 			// totalLend += float32(itemPriceFloat)
 			currencyTotal += float32(itemPriceFloat)
@@ -262,7 +266,7 @@ func scanCalcItems() []Person {
 		// process last currency of the last person
 		if three_digits != prefCurrency {
 			currencyTotalExchanged, err = currencyConverter(currencyTotal, three_digits, prefCurrency)
-			fmt.Printf("exchanging %.2f %s into %.2f %s.\n", currencyTotal, three_digits, currencyTotalExchanged, prefCurrency)
+			fmt.Printf("   %.2f %s -> %.2f %s.\n", currencyTotal, three_digits, currencyTotalExchanged, prefCurrency)
 		} else {
 			currencyTotalExchanged = currencyTotal
 			fmt.Println("Is already prefCurrency:", prefCurrency)
@@ -272,7 +276,7 @@ func scanCalcItems() []Person {
 
 		// calculate last person total lent
 		person[p].lent = totalLend
-		fmt.Println("\n ->", person[p].name, "lent:", person[p].lent)
+		fmt.Printf("\n -> %s lent: %.2f \n", person[p].name, person[p].lent)
 	}
 
 	// finalPrint(person[0].lent, person[1].lent, person[0].name, person[1].name, prefCurrency)
@@ -349,8 +353,16 @@ func testings() {
 }
 
 func main() {
-	person := scanCalcItems()
+	if len(os.Args) != 2 {
+		fmt.Println("Usage: go run bill-split-app.go /path/to/file.md")
+		os.Exit(1)
+	}
 
+	filepath := os.Args[1]
+	person := scanCalcItems(filepath)
+
+	//////
+	//person := scanCalcItems()
 	// testings()
 
 	fmt.Println("\n\n=============== BILL ===============\n")
