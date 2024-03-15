@@ -108,6 +108,7 @@ func scanCalcItems(filePath string) []Person {
 
 	// INIT person and currency
 	p, c := -1, -1
+	hasF := false
 	currency := make([]Currency, 0)
 	var three_digits string
 	var totalLend, currencyTotal, currencyTotalExchanged float32 = 0.0, 0.0, 0.0
@@ -138,7 +139,8 @@ func scanCalcItems(filePath string) []Person {
 
 				if three_digits != prefCurrency {
 					currencyTotalExchanged, err = currencyConverter(currencyTotal, three_digits, prefCurrency)
-					fmt.Printf("   %.2f %s -> %.2f %s.\n", currencyTotal, three_digits, currencyTotalExchanged, prefCurrency)
+					fmt.Printf("   ––––––––––––––––––––––\n   %.2f %s -> %.2f %s", currencyTotal, three_digits, currencyTotalExchanged, prefCurrency)
+					fmt.Printf("\n   = %.2f %s \n", currencyTotalExchanged, prefCurrency)
 				} else {
 					currencyTotalExchanged = currencyTotal
 					// fmt.Println("Is already prefCurrency:", prefCurrency)
@@ -175,14 +177,15 @@ func scanCalcItems(filePath string) []Person {
 			if len(three_digits) > 0 && !personChangedTrue {
 				if three_digits != prefCurrency {
 					currencyTotalExchanged, err = currencyConverter(currencyTotal, three_digits, prefCurrency)
-					fmt.Printf("    %.2f %s -> %.2f %s.\n", currencyTotal, three_digits, currencyTotalExchanged, prefCurrency)
+					fmt.Printf("   ––––––––––––––––––––––\n   %.2f %s -> %.2f %s", currencyTotal, three_digits, currencyTotalExchanged, prefCurrency)
+					fmt.Printf("\n   = %.2f %s \n", currencyTotalExchanged, prefCurrency)
 				} else {
 					currencyTotalExchanged = currencyTotal
 					// fmt.Println("Is already prefCurrency:", prefCurrency)
 				}
 				currency = append(currency, Currency{total: currencyTotalExchanged})
 				totalLend += currencyTotalExchanged
-				fmt.Printf("   ––––––––––––––\n   = %.2f %s \n", currencyTotalExchanged, three_digits)
+				fmt.Printf("   –––––––––––––––––––––\n   = %.2f %s \n", currencyTotalExchanged, three_digits)
 				currencyTotal, currencyTotalExchanged = 0.0, 0.0
 			}
 
@@ -207,8 +210,14 @@ func scanCalcItems(filePath string) []Person {
 			///////////////////////////////////////////////////
 			//////////////////// ITEM /////////////////////////
 			///////////////////////////////////////////////////
-			//////////////// NUMBER detected //////////////////
-		} else if lineStartNumber.MatchString(line) {
+			//////////////// F or NUMBER detected //////////////////
+			//		} else if lineStartNumber.MatchString(line) {
+		} else if lineStartNumber.MatchString(line) || strings.HasPrefix(line, "f") {
+
+			if strings.HasPrefix(line, "f") {
+				hasF = true
+				line = strings.TrimPrefix(line, "f")
+			}
 
 			// FindStringSubmatch returns a slice of strings containing the text
 			// of the leftmost match and the matches found by the capturing groups.
@@ -225,24 +234,28 @@ func scanCalcItems(filePath string) []Person {
 				panic(err)
 			}
 
-			// fmt.Println("match:", match, "match[0], match[1]:", match[0], match[1]) // check
-			fmt.Printf("   %.2f - %s\n", itemPriceFloat, itemDescription)
+			if hasF {
+				itemPriceFloat *= 2
+				fmt.Printf("   %.2f - %s (full price)\n", itemPriceFloat, itemDescription)
+
+				hasF = false
+
+			} else {
+				// fmt.Println("match:", match, "match[0], match[1]:", match[0], match[1]) // check
+				fmt.Printf("   %.2f - %s\n", itemPriceFloat, itemDescription)
+			}
 
 			// totalLend += float32(itemPriceFloat)
 			currencyTotal += float32(itemPriceFloat)
 
-			//////////////////////////////////////////
-			///////////// F detected //////////////////
-			/////////////////////////////////////////
-		} else if strings.HasPrefix(line, "f") {
-			// TODO:
+			//		} else if strings.HasPrefix(line, "f") {
 			// f_prefix_trimmed := strings.TrimSpace(strings.TrimPrefix(line, "f"))
 			// item.amount = trim the part after the number
 			// item.amount = append(item, Item{})
 			// item.amount *= 2
 			// total += item amounts
 
-			fmt.Println("Non splitted item found:", line)
+			//		fmt.Println("Non splitted item found:", line)
 
 			///////////////////////////////////////////
 			//////////////// BLANK LINE ///////////////
@@ -266,7 +279,8 @@ func scanCalcItems(filePath string) []Person {
 		// process last currency of the last person
 		if three_digits != prefCurrency {
 			currencyTotalExchanged, err = currencyConverter(currencyTotal, three_digits, prefCurrency)
-			fmt.Printf("   %.2f %s -> %.2f %s.\n", currencyTotal, three_digits, currencyTotalExchanged, prefCurrency)
+			fmt.Printf("   ––––––––––––––––––––––\n   %.2f %s -> %.2f %s", currencyTotal, three_digits, currencyTotalExchanged, prefCurrency)
+			fmt.Printf("\n   = %.2f %s \n", currencyTotalExchanged, prefCurrency)
 		} else {
 			currencyTotalExchanged = currencyTotal
 			fmt.Println("Is already prefCurrency:", prefCurrency)
