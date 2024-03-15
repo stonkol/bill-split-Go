@@ -146,7 +146,7 @@ func scanCalcItems(filePath string) []Person {
 				person[p-1].lent = totalLend
 				totalLend = 0.0
 				// fmt.Println("\n ->", person[p-1].name, "lent:", person[p-1].lent)
-				fmt.Printf("\n -> %s lent: %.2f \n", person[p-1].name, person[p-1].lent)
+				fmt.Printf("\n -> %s lent: %.2f %s \n", person[p-1].name, person[p-1].lent, prefCurrency)
 
 				//////// PERSON 1 start//////////
 			} else if p == 0 {
@@ -280,7 +280,7 @@ func scanCalcItems(filePath string) []Person {
 
 		// calculate last person total lent
 		person[p].lent = totalLend
-		fmt.Printf("\n -> %s lent: %.2f \n", person[p].name, person[p].lent)
+		fmt.Printf("\n -> %s lent: %.2f %s \n", person[p].name, person[p].lent, prefCurrency)
 	}
 
 	return person
