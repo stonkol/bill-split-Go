@@ -7,6 +7,7 @@ import (
 	"math"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -76,8 +77,11 @@ func scanCalcItems() []Person {
 	// and one or more digits.
 	lineStartNumber := regexp.MustCompile(`^\s*\d+(\.\d+)?`)
 
+	// INIT
 	p := -1
 	currency := make([]Currency, 0)
+	var three_digits string
+	var totalLend float32
 
 	// Create a scanner to read the file line by line
 	scanner := bufio.NewScanner(file)
@@ -90,24 +94,25 @@ func scanCalcItems() []Person {
 		/////////////////// PERSON ///////////////////////
 		/////////////////////////////////////////////////////
 		if strings.HasPrefix(line, "# ") {
+
 			p++
 
+			name := strings.TrimSpace(strings.TrimPrefix(line, "# "))
+			person = append(person, Person{name: name})
+
 			/////// PERSON 2 ////////
-			if p == 1 {
+			if p > 0 {
 				// add that currency total
 				// currencyConverter(currencyTotal, whichcurrency)
-				name := strings.TrimSpace(strings.TrimPrefix(line, "# "))
-				person = append(person, Person{name: name})
 
-				// person[p].lent = currency[p].total
+				person[p].lent = currency[p].total
 				// fmt.Println("\n p, name, line:", p, name, line)
 				fmt.Println("\n p:", p, "name:", name)
+				fmt.Println("\nperson:", person[p], "name:", name)
 
 				//////// PERSON 1 //////////
 			} else if p == 0 {
 				// Extract the name from the line and create a new Person
-				name := strings.TrimSpace(strings.TrimPrefix(line, "# "))
-				person = append(person, Person{name: name})
 				//  fmt.Println("\n p, name, line:", p, name, line)
 				// person[p].name = name
 				// fmt.Println("detected:", line)
@@ -121,7 +126,7 @@ func scanCalcItems() []Person {
 			//////////////////////////////////////////////////
 		} else if strings.HasPrefix(line, "## ") {
 
-			three_digits := strings.TrimSpace(strings.TrimPrefix(line, "## "))
+			three_digits = strings.TrimSpace(strings.TrimPrefix(line, "## "))
 			// Convert currency1 to uppercase if it's not already
 			if three_digits != strings.ToUpper(three_digits) {
 				three_digits = strings.ToUpper(three_digits)
@@ -156,7 +161,7 @@ func scanCalcItems() []Person {
 			// continue // TODO: will this break go out of if and for?
 
 			///////////// NUMBER detected /////////////
-		} else if lineStartNumber.MatchString(line) { // WARNING: not corrrectly written
+		} else if lineStartNumber.MatchString(line) {
 
 			// FindStringSubmatch returns a slice of strings containing the text
 			// of the leftmost match and the matches found by the capturing groups.
@@ -165,9 +170,17 @@ func scanCalcItems() []Person {
 			// and match[1] refers to the first captured group
 			itemPrice := match[0]
 
+			// Convert the string to a float32
+			itemPriceFloat, err := strconv.ParseFloat(itemPrice, 32)
+			if err != nil {
+				// Handle error if the string is not a valid number
+				panic(err)
+			}
+
 			// fmt.Println("match:", match, "match[0], match[1]:", match[0], match[1]) // check
-			fmt.Println(" - Item price:", itemPrice, " (whole line:", line, ")")
-			// total += itemPrice
+			fmt.Println(" - Adedd ", itemPriceFloat, " to total lended.")
+			// fmt.Println("whole line:", line, ")")
+			totalLend += float32(itemPriceFloat)
 
 			///////////////////////////////////////////
 			//////////////// BLANK LINE //////////////
