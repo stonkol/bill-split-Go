@@ -40,6 +40,8 @@ type Currency struct {
 
 const default_currency string = "eur"
 
+var prefCurrency string
+
 // Exchange rates matrix
 var exchangeRates = map[string]map[string]float32{
 	"USD": {"USD": 1.0, "EUR": 0.84, "GBP": 0.73, "JPY": 109.56},
@@ -55,6 +57,22 @@ func currencyConverter(totalPrice float32, currencyIn, currencyOut string) (floa
 		return 0, fmt.Errorf("exchange rate not found for %s to %s", currencyIn, currencyOut)
 	}
 	return totalPrice * rate, nil
+}
+
+func finalPrint(p1_lent, p2_lent float32, p1_name, p2_name, currency string) {
+	// calculate who owes more
+	difference := (p1_lent - p2_lent) / 2
+
+	// print who owes who and hpw much
+	if difference > 0 {
+		fmt.Println(p2_name, "owes", difference, currency)
+	} else if difference < 0 {
+		fmt.Println(p1_name, "owes", math.Abs(float64(difference)), currency)
+	} else if difference == 0 {
+		fmt.Println("You have lent the same amount.")
+	} else {
+		fmt.Println("Error: there is no difference data")
+	}
 }
 
 func scanCalcItems() []Person {
@@ -81,7 +99,7 @@ func scanCalcItems() []Person {
 	p := -1
 	currency := make([]Currency, 0)
 	var three_digits string
-	var totalLend float32
+	var totalLend float32 = 0.0
 
 	// Create a scanner to read the file line by line
 	scanner := bufio.NewScanner(file)
@@ -100,27 +118,20 @@ func scanCalcItems() []Person {
 			name := strings.TrimSpace(strings.TrimPrefix(line, "# "))
 			person = append(person, Person{name: name})
 
-			/////// PERSON 2 ////////
+			/////// PERSON 1 ENDS, PERSON 2 GOING TO START ////////
 			if p > 0 {
-				// add that currency total
-				// currencyConverter(currencyTotal, whichcurrency)
+				person[p-1].lent = totalLend
+				totalLend = 0.0
+				fmt.Println("\n", person[p-1].name, "lent:", person[p-1].lent)
 
-				person[p].lent = currency[p].total
-				// fmt.Println("\n p, name, line:", p, name, line)
-				fmt.Println("\n p:", p, "name:", name)
-				fmt.Println("\nperson:", person[p], "name:", name)
-
-				//////// PERSON 1 //////////
+				//////// PERSON 1 start//////////
 			} else if p == 0 {
-				// Extract the name from the line and create a new Person
-				//  fmt.Println("\n p, name, line:", p, name, line)
-				// person[p].name = name
-				// fmt.Println("detected:", line)
-
 				//////// ERROR /////////
 			} else {
 				fmt.Println("Error: else of Person.")
 			}
+			fmt.Println("\n P", p, "name:", name, "person:", person[p].name)
+
 			///////////////////////////////////////////////////
 			//////////////////  CURRENCY /////////////////////
 			//////////////////////////////////////////////////
@@ -133,34 +144,14 @@ func scanCalcItems() []Person {
 			}
 			currency = append(currency, Currency{three_digits: three_digits})
 
-			fmt.Println("currency:", three_digits)
+			fmt.Println(" = currency:", three_digits)
 
 			// currencyScanner := bufio.NewScanner(strings.NewReader(line))
 
 			///////////////////////////////////////////////////
 			//////////////////// ITEM /////////////////////////
 			///////////////////////////////////////////////////
-			//itemScanner := bufio.NewScanner(strings.NewReader(line))
-			//scanner := bufio.NewScanner(file)
-
-			// for scanner.Scan() {
-			// fmt.Println("itemScanner loop ->") // check
-			// currencyLine := currencyScanner.Text()
-			//	itemLine := scanner.Text()
-
-			//	fmt.Println("itemLine:", line)
-
-			///////////// NEW PERSON DETECTED: Break
-			//if strings.HasPrefix(itemLine, "# ") {
-
-			//	fmt.Println("new Person detected.")
-			// add that currency total
-			// currencyConverter(currencyTotal, whichcurrency)
-			//person[p].lent = currency[p].total
-			/////////////////////////
-			// continue // TODO: will this break go out of if and for?
-
-			///////////// NUMBER detected /////////////
+			//////////////// NUMBER detected //////////////////
 		} else if lineStartNumber.MatchString(line) {
 
 			// FindStringSubmatch returns a slice of strings containing the text
@@ -182,10 +173,6 @@ func scanCalcItems() []Person {
 			// fmt.Println("whole line:", line, ")")
 			totalLend += float32(itemPriceFloat)
 
-			///////////////////////////////////////////
-			//////////////// BLANK LINE //////////////
-			///////////////////////////////////////////
-		} else if len(strings.TrimSpace(line)) == 0 {
 			//////////////////////////////////////////
 			///////////// F detected //////////////////
 			/////////////////////////////////////////
@@ -199,6 +186,12 @@ func scanCalcItems() []Person {
 
 			fmt.Println("Non splitted item found:", line)
 
+			///////////////////////////////////////////
+			//////////////// BLANK LINE ///////////////
+			///////////////////////////////////////////
+		} else if len(strings.TrimSpace(line)) == 0 {
+			//
+
 			/////////////////////////////////////////
 			/////////////// ERROR ///////////////////
 			/////////////////////////////////////////
@@ -206,23 +199,16 @@ func scanCalcItems() []Person {
 			fmt.Println("ERROR: else of itemScanner")
 		}
 	}
-	return person
-}
 
-func finalPrint(p1_lent, p2_lent float32, p1_name, p2_name, currency string) {
-	// calculate who owes more
-	difference := (p1_lent - p2_lent) / 2
-
-	// print who owes who and hpw much
-	if difference > 0 {
-		fmt.Println(p2_name, "owes", difference, currency)
-	} else if difference < 0 {
-		fmt.Println(p1_name, "owes", math.Abs(float64(difference)), currency)
-	} else if difference == 0 {
-		fmt.Println("You have lent the same amount.")
-	} else {
-		fmt.Println("Error: there is no difference data")
+	/////////////////////////////////////////
+	////////////// LAST LINE ////////////////
+	/////////////////////////////////////////
+	if !scanner.Scan() {
+		person[p].lent = totalLend
+		fmt.Println("\n", person[p].name, "lent:", person[p].lent)
 	}
+
+	return person
 }
 
 func testings() {
@@ -296,21 +282,18 @@ func testings() {
 }
 
 func main() {
-	// maybe make map to store multiple currencies in one variable?
-	// var total, total_eur, total_gbp, total_jpy float32 = 0.0, 0.0, 0.0, 0.0
-
-	// Print the names of the people
 	person := scanCalcItems()
-	fmt.Println("\n__ PERSONS ___")
-	for p := 0; p < len(person); p++ {
-		fmt.Printf("P%d: %s\n", p+1, person[p].name)
-	}
 
 	fmt.Println("\n___ TESTINGS ___")
 	testings()
 
+	// finalPrint(person[], p2_lent float32, p1_name string, p2_name string, currency string)
+
 	fmt.Println("\n\n\n============ MAIN OUTPUT ============\n")
-	finalPrint(person[0].lent, person[1].lent, person[0].name, person[1].name, default_currency)
+	for p := 0; p < len(person); p++ {
+		fmt.Printf("P%d: %s lend: %.2f %s\n", p+1, person[p].name, person[p].lent, prefCurrency)
+	}
+	// finalPrint(person[0].lent, person[1].lent, person[0].name, person[1].name, default_currency)
 	fmt.Println("====================================\n\n")
 }
 
@@ -375,3 +358,26 @@ func main() {
 // 		break
 // 	}
 // }
+//
+//
+///////////////////////////////////////////////////
+//////////////////// ITEM /////////////////////////
+///////////////////////////////////////////////////
+//itemScanner := bufio.NewScanner(strings.NewReader(line))
+//scanner := bufio.NewScanner(file)
+
+// for scanner.Scan() {
+// fmt.Println("itemScanner loop ->") // check
+// currencyLine := currencyScanner.Text()
+//	itemLine := scanner.Text()
+
+//	fmt.Println("itemLine:", line)
+
+///////////// NEW PERSON DETECTED: Break
+//if strings.HasPrefix(itemLine, "# ") {
+
+//	fmt.Println("new Person detected.")
+// add that currency total
+// currencyConverter(currencyTotal, whichcurrency)
+//person[p].lent = currency[p].total
+/////////////////////////
